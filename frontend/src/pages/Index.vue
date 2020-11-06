@@ -3,15 +3,6 @@
 
       <Header/>
 
-      <div v-if="!loaded" class="row mt-5 mb-5">
-        <div class="col-12 mt-5 mb-2 text-center">
-          <font-awesome-icon icon="circle-notch" class="text-dim" size="2x" spin/>
-        </div>
-        <div class="col-12 text-center mt-3 mb-3">
-          <span class="text-dim">{{loading_text}}</span>
-        </div>
-      </div>
-
         <div class="col-12 full-col-12">
             <div v-for="service in services_no_group" v-bind:key="service.id" class="list-group online_list mb-4">
                 <div class="list-group-item list-group-item-action">
