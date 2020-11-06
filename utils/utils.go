@@ -1,9 +1,9 @@
 package utils
 
 import (
+	"bytes"
 	"context"
 	"crypto/tls"
-	"errors"
 	"fmt"
 	"github.com/statping/statping/types/metrics"
 	"io"
@@ -11,11 +11,9 @@ import (
 	"net"
 	"net/http"
 	"net/url"
-	"os"
 	"os/exec"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 )
 
@@ -81,38 +79,18 @@ func ToString(s interface{}) string {
 //		in, out, err := Command("sass assets/scss assets/css/base.css")
 func Command(name string, args ...string) (string, string, error) {
 	testCmd := exec.Command(name, args...)
-	var stdout, stderr []byte
-	var errStdout, errStderr error
-	stdoutIn, _ := testCmd.StdoutPipe()
-	stderrIn, _ := testCmd.StderrPipe()
+	var stdout, stderr bytes.Buffer
+	testCmd.Stdout = &stdout
+	testCmd.Stderr = &stderr
 	err := testCmd.Start()
 	if err != nil {
 		return "", "", err
 	}
-
-	var wg sync.WaitGroup
-
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		stdout, errStdout = copyAndCapture(os.Stdout, stdoutIn)
-	}()
-
-	stderr, errStderr = copyAndCapture(os.Stderr, stderrIn)
-
-	// call testCmd.Wait() only after reads from all pipes have completed
-	wg.Wait()
 	err = testCmd.Wait()
 	if err != nil {
-		return string(stdout), string(stderr), err
+		return "", string(stderr.Bytes()), err
 	}
-
-	if errStdout != nil || errStderr != nil {
-		return string(stdout), string(stderr), errors.New("failed to capture stdout or stderr")
-	}
-
-	outStr, errStr := string(stdout), string(stderr)
-	return outStr, errStr, err
+	return string(stdout.Bytes()), string(stderr.Bytes()), nil
 }
 
 // copyAndCapture will read a terminal command into bytes
