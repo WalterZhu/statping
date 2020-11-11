@@ -8,9 +8,8 @@ platform:
 
 steps:
 - name: frontend-build
-  image: node:12-18.2-alpine
+  image: node:12.18.2-alpine
   commands:
-    - npm install -g yarn
     - cd frontend/
     - yarn install --pure-lockfile --network-timeout 1000000
     - yarn build
