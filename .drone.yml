@@ -32,3 +32,6 @@ steps:
     registry: dockerhub.qingcloud.com
     repo: dockerhub.qingcloud.com/statping/statping
     auto_tag: true
+  when:
+    event:
+    - tag
