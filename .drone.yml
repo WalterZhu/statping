@@ -17,5 +17,18 @@ steps:
 - name: backend-build
   image: golang:1.14-alpine
   commands:
+    - cp frontend/dist/ source/dist/
     - apk add --update --no-cache libstdc++ gcc g++ make git autoconf
     - go build -a -ldflags "-s -w -extldflags -static" -o statping --tags "netgo linux" ./cmd
+
+- name: publish
+  image: plugins/docker
+  settings:
+    username:
+      from_secret: username
+    password:
+      from_secret: password
+    dockerfile: Dockerfile.drone
+    registry: dockerhub.qingcloud.com
+    repo: dockerhub.qingcloud.com/statping/statping
+    auto_tag: true
