@@ -1,0 +1,21 @@
+kind: pipeline
+type: docker
+name: default
+
+platform:
+  os: linux
+  arch: amd64
+
+steps:
+- name: frontend-build
+  image: node:12-18.2-alpine
+  commands:
+    - npm install -g yarn
+    - cd frontend/
+    - yarn install --pure-lockfile --network-timeout 1000000
+    - yarn build
+
+- name: backend-build
+  image: golang:1.14-alpine
+  commands:
+    - go build -a -ldflags "-s -w -extldflags -static" -o statping --tags "netgo linux" ./cmd
