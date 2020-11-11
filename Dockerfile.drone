@@ -1,8 +1,7 @@
 FROM alpine:latest
 RUN apk --no-cache add libgcc libstdc++ ca-certificates curl jq && update-ca-certificates
 
-COPY ./cmd/statping /usr/local/bin/
-COPY --from=base /usr/local/share/ca-certificates /usr/local/share/
+COPY ./statping /usr/local/bin/
 
 WORKDIR /app
 VOLUME /app
