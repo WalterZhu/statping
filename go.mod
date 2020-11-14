@@ -12,8 +12,8 @@ require (
 	github.com/foomo/tlsconfig v0.0.0-20180418120404-b67861b076c9
 	github.com/getsentry/sentry-go v0.5.1
 	github.com/go-mail/mail v2.3.1+incompatible
-	github.com/go-redis/cache/v8 v8.0.0
-	github.com/go-redis/redis/v8 v8.1.3
+	github.com/go-redis/cache/v8 v8.0.0 // indirect
+	github.com/go-redis/redis/v8 v8.1.3 // indirect
 	github.com/gorilla/mux v1.7.4
 	github.com/hako/durafmt v0.0.0-20200605151348-3a43fc422dd9
 	github.com/jinzhu/gorm v1.9.12

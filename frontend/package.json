@@ -3,9 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve --mode dev --host 0.0.0.0",
+    "serve": "vue-cli-service serve --mode development --host 0.0.0.0",
     "build": "cross-env NODE_ENV=production vue-cli-service build --mode pro",
-    "dev": "cross-env NODE_ENV=development webpack-dev-server --host 0.0.0.0 --port 8888 --progress",
     "backend-test": "newman run -e ../dev/postman_environment.json --delay-request 500 ../dev/postman.json",
     "cypress:open": "cypress open",
     "cypress:test": "cypress run --browser chrome --record false --key $CYPRESS_KEY",
