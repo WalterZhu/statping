@@ -43,9 +43,9 @@ func Assets() error {
 	var err error
 	TmplBox, err = rice.FindBox("dist")
 	if err != nil {
-		return errors.Wrap(err, " 辅助定位错误 ")
+		return err
 	}
-	return err
+	return nil
 }
 
 func scssRendered(name string) string {
