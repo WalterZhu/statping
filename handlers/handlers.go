@@ -23,7 +23,7 @@ var (
 	httpServer *http.Server
 	usingSSL   bool
 	mainTmpl   = `{{define "main" }} {{ template "base" . }} {{ end }}`
-	templates  = []string{"base.gohtml"}
+	templates  = []string{"base.html"}
 	httpError  chan error
 )
 
@@ -218,5 +218,5 @@ func error404Handler(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Strict-Transport-Security", "max-age=63072000; includeSubDomains")
 	}
 	w.WriteHeader(http.StatusNotFound)
-	ExecuteResponse(w, r, "base.gohtml", nil, nil)
+	ExecuteResponse(w, r, "base.html", nil, nil)
 }

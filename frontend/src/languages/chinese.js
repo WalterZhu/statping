@@ -87,6 +87,8 @@ const chinese = {
     save_settings: "保存设置",
     average_response: "平均响应",
     last_uptime: "上次正常运行时间",
+    last_24hours: "最近24小时",
+    last_7days: "最近7天",
     sign_in: "登录",
     last_login: "上次登录",
     admin: "管理员",

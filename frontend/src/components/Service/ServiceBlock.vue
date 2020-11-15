@@ -13,12 +13,10 @@
                     <ServiceTopStats :service="service"/>
                 </div>
             </div>
-
             <div v-show="!expanded" v-observe-visibility="{callback: visibleChart, throttle: 200}"
                  class="chart-container">
                 <ServiceChart :service="service" :visible="visible" :chart_timeframe="chartTimeframe"/>
             </div>
-
             <div class="row lower_canvas full-col-12 text-white"
                  :class="{'bg-success': service.online, 'bg-danger': !service.online}">
                 <div class="col-md-10 col-6">
@@ -58,7 +56,6 @@
                     </button>
                 </div>
             </div>
-
         </div>
     </div>
 </template>

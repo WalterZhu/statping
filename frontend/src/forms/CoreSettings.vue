@@ -1,8 +1,8 @@
 <template>
     <form @submit.prevent="saveSettings">
-    <div class="card">
-        <div class="card-header">Statping Settings</div>
-        <div class="card-body">
+        <div class="card">
+            <div class="card-header">Statping Settings</div>
+            <div class="card-body">
                 <div class="form-group">
                     <label>{{ $t('project_name') }}</label>
                     <input v-model="core.name" type="text" class="form-control" placeholder="Great Uptime" id="project">
@@ -10,7 +10,8 @@
 
                 <div class="form-group">
                     <label>{{ $t('description') }}</label>
-                    <input v-model="core.description" type="text" class="form-control" placeholder="Great Uptime" id="description">
+                    <input v-model="core.description" type="text" class="form-control" placeholder="Great Uptime"
+                           id="description">
                 </div>
 
                 <div class="form-group row">
@@ -22,7 +23,8 @@
                         <label class="d-inline d-sm-none">{{$t('enable_cdn')}}</label>
                         <label class="d-none d-sm-block">{{$t('enable_cdn')}}</label>
                         <span @click="core.using_cdn = !!core.using_cdn" class="switch" id="using_cdn">
-                            <input v-model="core.using_cdn" type="checkbox" name="using_cdn" class="switch" id="switch-normal" :checked="core.using_cdn">
+                            <input v-model="core.using_cdn" type="checkbox" name="using_cdn" class="switch"
+                                   id="switch-normal" :checked="core.using_cdn">
                             <label for="switch-normal"></label>
                           </span>
                     </div>
@@ -53,7 +55,8 @@
                     <label class="col-sm-10 col-form-label">{{ $t('send_reports') }}</label>
                     <div class="col-sm-2 float-right">
                         <span @click="core.allow_reports = !!core.allow_reports" class="switch" id="allow_report">
-                        <input v-model="core.allow_reports" type="checkbox" name="allow_report" class="switch" id="switch_allow_report" :checked="core.allow_reports">
+                        <input v-model="core.allow_reports" type="checkbox" name="allow_report" class="switch"
+                               id="switch_allow_report" :checked="core.allow_reports">
                         <label for="switch_allow_report"></label>
                       </span>
                     </div>
@@ -62,45 +65,47 @@
                     </div>
                 </div>
 
+            </div>
+            <div class="card-footer">
+                <button @click.prevent="saveSettings" id="save_core" type="submit" class="btn btn-primary btn-block"
+                        v-bind:disabled="loading">
+                    <font-awesome-icon v-if="loading" icon="circle-notch" class="mr-2" spin/>
+                    {{ $t('save_settings') }}
+                </button>
+            </div>
         </div>
-        <div class="card-footer">
-            <button @click.prevent="saveSettings" id="save_core" type="submit" class="btn btn-primary btn-block" v-bind:disabled="loading">
-                <font-awesome-icon v-if="loading" icon="circle-notch" class="mr-2" spin/>{{ $t('save_settings') }}
-            </button>
-        </div>
-    </div>
     </form>
 </template>
 
 <script>
-  import Api from '../API'
+    import Api from '../API'
 
-  export default {
-      name: 'CoreSettings',
-    data () {
-      return {
-        loading: false
-      }
-    },
-      computed: {
-          core() {
-              return this.$store.getters.core
-          }
-      },
-      methods: {
-          async saveSettings() {
-            this.loading = true
-              const c = this.core
-              await Api.core_save(c)
-              this.$store.commit('setCore', c)
-            this.$i18n.locale = c.language || "en";
-            this.loading = false
-          },
-          selectAll() {
-              this.$refs.input.select();
-          }
-      }
-  }
+    export default {
+        name: 'CoreSettings',
+        data() {
+            return {
+                loading: false
+            }
+        },
+        computed: {
+            core() {
+                return this.$store.getters.core
+            }
+        },
+        methods: {
+            async saveSettings() {
+                this.loading = true
+                const c = this.core
+                await Api.core_save(c)
+                this.$store.commit('setCore', c)
+                this.$i18n.locale = c.language || "en";
+                this.loading = false
+            },
+            selectAll() {
+                this.$refs.input.select();
+            }
+        }
+    }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

@@ -8,14 +8,14 @@ import (
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	if !core.App.Setup {
-		ExecuteResponse(w, r, "base.gohtml", core.App, "setup")
+		ExecuteResponse(w, r, "index.html", core.App, "setup")
 		return
 	}
-	ExecuteResponse(w, r, "base.gohtml", core.App, nil)
+	ExecuteResponse(w, r, "index.html", core.App, nil)
 }
 
 func baseHandler(w http.ResponseWriter, r *http.Request) {
-	ExecuteResponse(w, r, "base.gohtml", core.App, nil)
+	ExecuteResponse(w, r, "index.html", core.App, nil)
 }
 
 func healthCheckHandler(w http.ResponseWriter, r *http.Request) {

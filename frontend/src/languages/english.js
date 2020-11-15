@@ -87,6 +87,8 @@ const english = {
     save_settings: "Save Settings",
     average_response: "Average Response",
     last_uptime: "Uptime last",
+    last_24hours: "Last 24 Hours",
+    last_7days: "Last 7 days",
     sign_in: "Sign In",
     last_login: "Last Login",
     admin: "Admin",
