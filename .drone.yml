@@ -13,6 +13,7 @@ steps:
     - cd frontend/
     - yarn install --pure-lockfile --network-timeout 1000000
     - yarn build
+    - ls ../source/
 
 - name: backend-build
   image: golang:1.15.4-alpine
