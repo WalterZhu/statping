@@ -2,12 +2,18 @@ package utils
 
 import (
 	"github.com/hako/durafmt"
+	"github.com/statping/statping/types/core"
 	"time"
 )
 
 // Now returns the UTC timestamp
 func Now() time.Time {
 	return time.Now().UTC()
+}
+
+func TimeFormat(t time.Time) string {
+	loc, _ := time.LoadLocation(core.App.TimeZone)
+	return t.In(loc).String()
 }
 
 type Duration struct {

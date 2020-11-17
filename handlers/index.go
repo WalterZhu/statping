@@ -3,6 +3,7 @@ package handlers
 import (
 	"github.com/statping/statping/types/core"
 	"github.com/statping/statping/types/services"
+	"github.com/statping/statping/utils"
 	"net/http"
 )
 
@@ -23,6 +24,8 @@ func healthCheckHandler(w http.ResponseWriter, r *http.Request) {
 		"services": len(services.All()),
 		"online":   true,
 		"setup":    core.App.Setup,
+		"start_at": utils.TimeFormat(core.App.Started),
+		"uuid"    : core.App.UUID,
 	}
 	returnJson(health, w, r)
 }

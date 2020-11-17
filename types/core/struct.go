@@ -1,8 +1,8 @@
 package core
 
 import (
+	"github.com/google/uuid"
 	"github.com/statping/statping/types/null"
-	"github.com/statping/statping/utils"
 	"time"
 )
 
@@ -14,7 +14,7 @@ func New(version, commit string) {
 	App = new(Core)
 	App.Version = version
 	App.Commit = commit
-	App.Started = utils.Now()
+	App.Started = time.Now()
 }
 
 // Core struct contains all the required fields for Statping. All application settings
@@ -22,7 +22,11 @@ func New(version, commit string) {
 // global variable to interact with the attributes to the application, such as services.
 type Core struct {
 	Name          string          `gorm:"not null;column:name" json:"name,omitempty"`
+	Title         string          `gorm:"not null;column:title" json:"name,omitempty"`
 	Description   string          `gorm:"not null;column:description" json:"description,omitempty"`
+	UUID          uuid.UUID       `grom:"not null;column:uuid" json:"uuid"`
+	Mode          string          `grom:"default:standalone;not null;column:mode" json:"mode"`
+	TimeZone      string          `grom:"default:UTC;column:timezone" json:"timezone"`
 	ConfigFile    string          `gorm:"column:config" json:"-"`
 	ApiSecret     string          `gorm:"column:api_secret" json:"api_secret" scope:"admin"`
 	Style         string          `gorm:"not null;column:style" json:"style,omitempty"`
