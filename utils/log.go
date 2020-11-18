@@ -250,5 +250,5 @@ func (o *logRow) lineAsString() string {
 }
 
 func (o *logRow) FormatForHtml() string {
-	return fmt.Sprintf("%s: %s", o.Date.Format("2006-01-02 15:04:05"), o.lineAsString())
+	return fmt.Sprintf("%d: %s", o.Date.Unix(), o.lineAsString())
 }
