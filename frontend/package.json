@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve --mode development --host 0.0.0.0",
+    "serve": "vue-cli-service serve --mode development --host 0.0.0.0 --port 8081",
     "build": "cross-env NODE_ENV=production vue-cli-service build --mode pro",
     "backend-test": "newman run -e ../dev/postman_environment.json --delay-request 500 ../dev/postman.json",
     "cypress:open": "cypress open",
@@ -30,6 +30,7 @@
     "date-fns": "^2.9.0",
     "js-beautify": "^1.11.0",
     "json-parse-even-better-errors": "^2.3.1",
+    "moment": "^2.29.1",
     "querystring": "^0.2.0",
     "sass": "^1.26.10",
     "sass-loader": "^10.1.0",
