@@ -5,12 +5,12 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
+	"github.com/go-ping/ping"
 	"github.com/statping/statping/types/metrics"
 	"io"
 	"io/ioutil"
 	"net"
 	"net/http"
-	"net/url"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -151,8 +151,8 @@ func HttpRequest(endpoint, method string, contentType interface{}, headers []str
 		return nil, nil, err
 	}
 	// set default headers so end user can overwrite them if needed
-	req.Header.Set("User-Agent", "Statping")
-	req.Header.Set("Statping-Version", Params.GetString("VERSION"))
+	//req.Header.Set("User-Agent", "Statping")
+	//req.Header.Set("Statping-Version", Params.GetString("VERSION"))
 	if contentType != nil {
 		req.Header.Set("Content-Type", contentType.(string))
 	}
@@ -194,13 +194,13 @@ func HttpRequest(endpoint, method string, contentType interface{}, headers []str
 			return dialer.DialContext(ctx, network, addr)
 		},
 	}
-	if Params.GetString("HTTP_PROXY") != "" {
-		proxyUrl, err := url.Parse(Params.GetString("HTTP_PROXY"))
-		if err != nil {
-			return nil, nil, err
-		}
-		transport.Proxy = http.ProxyURL(proxyUrl)
-	}
+	//if Params.GetString("HTTP_PROXY") != "" {
+	//	proxyUrl, err := url.Parse(Params.GetString("HTTP_PROXY"))
+	//	if err != nil {
+	//		return nil, nil, err
+	//	}
+	//	transport.Proxy = http.ProxyURL(proxyUrl)
+	//}
 	if customTLS != nil {
 		transport.TLSClientConfig.RootCAs = customTLS.RootCAs
 		transport.TLSClientConfig.Certificates = customTLS.Certificates
@@ -231,4 +231,38 @@ func HttpRequest(endpoint, method string, contentType interface{}, headers []str
 	metrics.Histo("duration", Now().Sub(t1).Seconds(), endpoint, method)
 
 	return contents, resp, err
+}
+
+// 输入host返回DNS耗费的时间，如输入域名有错误，或不存在的域名返回时间为-1
+// 使用系统DNS服务器地址，不能设置DNS服务器地址
+// 不可设置DNS请求超时时间
+// 不存在DNS缓存
+// 将来可能需要cgo重写本方法
+func DNSCheck(host string, timeout time.Duration) ([]string, time.Duration, error) {
+	t1 := time.Now()
+	address, err := net.LookupHost(host)
+	if err != nil {
+		return nil, timeout, err
+	}
+	return address, time.Now().Sub(t1), nil
+}
+
+// 输入：host域名，count次数，timeout超时时间。返回：平均请求时间，如域名有误或者超时返回-1
+// 使用OS的DNS服务地址
+func ICMPCheck(host string, count int, timeout time.Duration) (time.Duration, error) {
+	pinger, err := ping.NewPinger(host)
+	if err != nil {
+		return timeout, err
+	}
+	pinger.Count = count
+	pinger.Interval = 100*time.Millisecond
+	pinger.Timeout = timeout
+	pinger.SetPrivileged(false)
+
+	err = pinger.Run()
+	if err != nil {
+		return timeout, err
+	}
+	stats := pinger.Statistics()
+	return stats.AvgRtt, err
 }

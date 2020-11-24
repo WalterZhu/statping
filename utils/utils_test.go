@@ -5,7 +5,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"net/http"
-	"net/http/httptest"
 	"os"
 	"testing"
 	"time"
@@ -172,23 +171,55 @@ func TestRenameDirectory(t *testing.T) {
 }
 
 func TestHttpRequest(t *testing.T) {
-	// Start a local HTTP server
-	server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-		// Test request parameters
-		assert.Equal(t, req.URL.String(), "/")
-		assert.Equal(t, req.Header["Aaa"], []string{"bbbb="})
-		assert.Equal(t, req.Header["Ccc"], []string{"ddd"})
-		// Send response to be tested
-		rw.Write([]byte(`OK`))
-	}))
-	// Close the server when test finishes
-	defer server.Close()
-
-	body, resp, err := HttpRequest(server.URL, "GET", "application/json", []string{"aaa=bbbb=", "ccc=ddd"}, nil, 2*time.Second, false, nil)
+	//// Start a local HTTP server
+	//server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+	//	// Test request parameters
+	//	assert.Equal(t, req.URL.String(), "/")
+	//	assert.Equal(t, req.Header["Aaa"], []string{"bbbb="})
+	//	assert.Equal(t, req.Header["Ccc"], []string{"ddd"})
+	//	// Send response to be tested
+	//	rw.Write([]byte(`OK`))
+	//}))
+	//// Close the server when test finishes
+	//defer server.Close()
+	URL := "https://www.baidu.com"
+	_, resp, err := HttpRequest(URL, "GET", "", nil, nil, 20*time.Second, true, nil)
 
 	assert.Nil(t, err)
-	assert.Equal(t, []byte("OK"), body)
+	//assert.Equal(t, []byte("OK"), body)
 	assert.Equal(t, resp.StatusCode, 200)
+}
+
+func TestDNSCheck(t *testing.T) {
+	timeout := time.Second
+	_, r, err := DNSCheck("www.baidu.com", timeout)
+	assert.Nil(t, err)
+	assert.Greater(t, r.Microseconds(), int64(0))
+	
+	_, r , err = DNSCheck("abcde.baidu.com", timeout )
+	assert.NotNil(t, err)
+	assert.Equal(t, r, timeout)
+	
+	_, r, err = DNSCheck("abc", timeout)
+	assert.NotNil(t, err)
+	assert.Equal(t, r, timeout)
+}
+
+func TestICMPCheck(t *testing.T) {
+	timeout := 1*time.Second
+	count := 5
+	res, err := ICMPCheck("www.baidu.com", count, timeout)
+	assert.Nil(t, err)
+	assert.Greater(t, res.Microseconds(), int64(0))
+	assert.Less(t, res.Microseconds(), timeout.Microseconds())
+
+	res, err = ICMPCheck("abcde.baidu.com", count, timeout)
+	assert.NotNil(t, err)
+	assert.Equal(t, res, timeout)
+
+	res, err = ICMPCheck("abc", count, timeout)
+	assert.NotNil(t, err)
+	assert.Equal(t, res, timeout)
 }
 
 func TestConfigLoad(t *testing.T) {
