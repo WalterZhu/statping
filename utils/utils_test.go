@@ -207,19 +207,42 @@ func TestDNSCheck(t *testing.T) {
 
 func TestICMPCheck(t *testing.T) {
 	timeout := 1*time.Second
-	count := 5
-	res, err := ICMPCheck("www.baidu.com", count, timeout)
+	res, err := ICMPCheck("www.baidu.com", timeout)
 	assert.Nil(t, err)
 	assert.Greater(t, res.Microseconds(), int64(0))
 	assert.Less(t, res.Microseconds(), timeout.Microseconds())
 
-	res, err = ICMPCheck("abcde.baidu.com", count, timeout)
+	res, err = ICMPCheck("abcde.baidu.com", timeout)
 	assert.NotNil(t, err)
 	assert.Equal(t, res, timeout)
 
-	res, err = ICMPCheck("abc", count, timeout)
+	res, err = ICMPCheck("abc", timeout)
 	assert.NotNil(t, err)
 	assert.Equal(t, res, timeout)
+}
+
+func TestTCPCheck(t *testing.T) {
+	timeout := 5*time.Second
+	res, err := TCPCheck("duo-api.game.com:443", timeout)
+	fmt.Println(res)
+	assert.Nil(t, err)
+	assert.Greater(t, res.Microseconds(), int64(0))
+	assert.Less(t, res.Microseconds(), timeout.Microseconds())
+
+	res, err = TCPCheck("www.baidu.com:81",  timeout)
+	fmt.Println(res, "err: ", err)
+	assert.NotNil(t, err)
+	assert.Equal(t, res, timeout)
+}
+
+func TestUDPCheck(t *testing.T) {
+	timeout := 5*time.Second
+	key := "ping1"
+	res, err := UDPCheck("127.0.0.1:8088", key, timeout)
+	fmt.Println(res)
+	assert.Nil(t, err)
+	assert.Greater(t, res.Microseconds(), int64(0))
+	assert.Less(t, res.Microseconds(), timeout.Microseconds())
 }
 
 func TestConfigLoad(t *testing.T) {

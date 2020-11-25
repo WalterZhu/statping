@@ -12,6 +12,7 @@ import (
 	"net"
 	"net/http"
 	"os/exec"
+	"runtime"
 	"strconv"
 	"strings"
 	"time"
@@ -247,17 +248,20 @@ func DNSCheck(host string, timeout time.Duration) ([]string, time.Duration, erro
 	return address, time.Now().Sub(t1), nil
 }
 
-// 输入：host域名，count次数，timeout超时时间。返回：平均请求时间，如域名有误或者超时返回-1
+// 输入：host域名，timeout单次超时时间，默认10次,间隔100ms。返回：平均请求时间，如域名有误或者超时返回-1
 // 使用OS的DNS服务地址
-func ICMPCheck(host string, count int, timeout time.Duration) (time.Duration, error) {
+func ICMPCheck(host string, timeout time.Duration) (time.Duration, error) {
 	pinger, err := ping.NewPinger(host)
 	if err != nil {
 		return timeout, err
 	}
-	pinger.Count = count
+	pinger.Count = 10
 	pinger.Interval = 100*time.Millisecond
 	pinger.Timeout = timeout
 	pinger.SetPrivileged(false)
+	if runtime.GOOS == "linux" {
+		pinger.SetPrivileged(true)
+	}
 
 	err = pinger.Run()
 	if err != nil {
@@ -266,3 +270,48 @@ func ICMPCheck(host string, count int, timeout time.Duration) (time.Duration, er
 	stats := pinger.Statistics()
 	return stats.AvgRtt, err
 }
+
+// TCPCheck，建立TCP连接，触发3次握手成功即可说明TCP接口可以访问，
+// 但该方法并不适用于UDP，由于UDP socket不建立连接故无法通过链接来判断UDP是否连通
+func TCPCheck(target string, timeout time.Duration) (time.Duration, error){
+	start := time.Now()
+	conn, err := net.DialTimeout("tcp", target, timeout)
+	if err != nil {
+		return timeout, err
+	}
+	defer conn.Close()
+	return time.Now().Sub(start), nil
+}
+
+func UDPCheck(target string, key string, timeout time.Duration) (time.Duration, error){
+	conn, err := net.Dial("udp", target)
+	if err != nil {
+		return timeout, err
+	}
+	defer conn.Close()
+	start := time.Now()
+	//尝试向链接发送字节
+	_, err = conn.Write([]byte(key))
+	if err != nil {
+		fmt.Println("conn.Write err:", err)
+		return timeout, err
+	}
+	//尝试读取返回
+	buf := make([]byte, 16)
+	conn.SetDeadline(time.Now().Add(timeout))
+	_, err = conn.Read(buf)
+	if err != nil {
+		fmt.Println("conn.Read err:", err)
+		return timeout, err
+	}
+	return time.Now().Sub(start), nil
+}
+
+/*
+   BaseCheck将建立被测量对象的基本情况，包括域名解析，IPv4/IPv6，建立网络连接，同时支持传递参数进行进一步测量
+   返回则是一组测量参数，包括：域名解析时间、Ping请求平均时间、TCP/UDP连接建立时间、TLS握手建立时间
+
+func BaseCheck(target string, timeout time.Duration, f func()) ([]interface{}, error) {
+
+}
+*/
