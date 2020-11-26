@@ -245,6 +245,19 @@ func TestUDPCheck(t *testing.T) {
 	assert.Less(t, res.Microseconds(), timeout.Microseconds())
 }
 
+func TestHTTPCheck(t *testing.T) {
+	timeout := 10*time.Second
+	res, err := HttpCheck("https://www.baidu.com","get", timeout)
+	assert.Nil(t, err)
+	assert.Greater(t, res.Microseconds(), int64(0))
+	assert.Less(t, res.Microseconds(), timeout.Microseconds())
+
+	res, err = HttpCheck("http://www.baidu.com","GET", timeout)
+	assert.Nil(t, err)
+	assert.Greater(t, res.Microseconds(), int64(0))
+	assert.Less(t, res.Microseconds(), timeout.Microseconds())
+}
+
 func TestConfigLoad(t *testing.T) {
 	err := InitLogs()
 	require.Nil(t, err)

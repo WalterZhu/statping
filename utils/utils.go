@@ -271,8 +271,7 @@ func ICMPCheck(host string, timeout time.Duration) (time.Duration, error) {
 	return stats.AvgRtt, err
 }
 
-// TCPCheck，建立TCP连接，触发3次握手成功即可说明TCP接口可以访问，
-// 但该方法并不适用于UDP，由于UDP socket不建立连接故无法通过链接来判断UDP是否连通
+// TCPCheck，建立TCP socket时会触发3次握手成功即可说明TCP接口可以访问
 func TCPCheck(target string, timeout time.Duration) (time.Duration, error){
 	start := time.Now()
 	conn, err := net.DialTimeout("tcp", target, timeout)
@@ -283,7 +282,10 @@ func TCPCheck(target string, timeout time.Duration) (time.Duration, error){
 	return time.Now().Sub(start), nil
 }
 
-func UDPCheck(target string, key string, timeout time.Duration) (time.Duration, error){
+// UDPCheck
+// 由于UDP协议没有握手过程，无法通过创建socket来确认端口连接情况，创建socket后，
+// 通过发送keyword并得到返回内容来确认服务正常，如果在超时时间内没有获得任何返回则说明连接不可用
+func UDPCheck(target string, keyword string, timeout time.Duration) (time.Duration, error){
 	conn, err := net.Dial("udp", target)
 	if err != nil {
 		return timeout, err
@@ -291,9 +293,8 @@ func UDPCheck(target string, key string, timeout time.Duration) (time.Duration, 
 	defer conn.Close()
 	start := time.Now()
 	//尝试向链接发送字节
-	_, err = conn.Write([]byte(key))
+	_, err = conn.Write([]byte(keyword))
 	if err != nil {
-		fmt.Println("conn.Write err:", err)
 		return timeout, err
 	}
 	//尝试读取返回
@@ -301,10 +302,40 @@ func UDPCheck(target string, key string, timeout time.Duration) (time.Duration, 
 	conn.SetDeadline(time.Now().Add(timeout))
 	_, err = conn.Read(buf)
 	if err != nil {
-		fmt.Println("conn.Read err:", err)
 		return timeout, err
 	}
 	return time.Now().Sub(start), nil
+}
+
+func HttpCheck(url string, method string, timeout time.Duration) (time.Duration, error){
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	//cookieJar, _ := cookiejar.New(nil)
+	client := &http.Client {
+		Timeout:   timeout,
+		Transport: transport,
+		//Jar:       cookieJar,
+	}
+
+	req, err := http.NewRequest(method, url, nil)
+	if err != nil {
+		return timeout, err
+	}
+
+	//req.Header.Add()
+	startAt := time.Now()
+	res, err := client.Do(req)
+	if err != nil {
+		return timeout, err
+	}
+	fmt.Println(" code:", res.StatusCode, " proto:", res.Proto, " cookies:", res.Cookies())
+	defer res.Body.Close()
+	_, err = ioutil.ReadAll(res.Body)
+	if err != nil {
+		return timeout, err
+	}
+	return time.Now().Sub(startAt), nil
 }
 
 /*
